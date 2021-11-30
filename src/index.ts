@@ -1,4 +1,5 @@
 import QUESTIONS from './questions';
+import Timer from './timer';
 import { enableButton, disableButton } from './utils/disableButtonHelpers';
 
 import './scss/index';
@@ -6,7 +7,8 @@ import './scss/index';
 // DOM elements
 const questionNumberHeadingElement =
   document.querySelector('.question__number')!;
-const questionParagraphElement = document.querySelector('.question__text')!;
+const questionTimeElement = document.querySelector('.question__time')!;
+const questionTextElement = document.querySelector('.question__text')!;
 
 const answerParagraphElements = document.querySelectorAll(
   '.answers__answer__text'
@@ -22,7 +24,9 @@ const endgameModal = document.querySelector('.endgame-modal')!;
 const endgameModalButton = document.querySelector(
   '.endgame-modal__modal__buttons__button'
 )!;
-const engameModalBackdrop = document.querySelector('.endgame-modal__backdrop')!;
+const endgameModalBackdrop = document.querySelector(
+  '.endgame-modal__backdrop'
+)!;
 const scoredPointsElement = document.querySelector(
   '.endgame-modal__modal__score__points__scored'
 )!;
@@ -33,6 +37,7 @@ const totalPointsElement = document.querySelector(
 // Initial state
 let currentQuestionIndex = 0;
 let { equation, answers } = QUESTIONS[currentQuestionIndex];
+const timers = QUESTIONS.map(() => new Timer());
 updateUI();
 
 // App
@@ -45,11 +50,13 @@ updateUI();
     })
   );
 
+  initializeTimer();
+
   prevButtonElement.addEventListener('click', prevButtonClickHandler);
   nextButtonElement.addEventListener('click', nextButtonClickHandler);
   finishButtonElement.addEventListener('click', finishButtonClickHandler);
   endgameModalButton.addEventListener('click', () => location.reload());
-  engameModalBackdrop.addEventListener('click', () => location.reload());
+  endgameModalBackdrop.addEventListener('click', () => location.reload());
 })();
 
 // Navigation buttons click handlers
@@ -60,6 +67,7 @@ function prevButtonClickHandler() {
   updateState();
   updateUI();
   updateCheckedAnswerStylesOnQuestionChange(answerInputElements);
+  manageTimersOnQuestionChange(timers[currentQuestionIndex + 1]);
 }
 
 function nextButtonClickHandler() {
@@ -69,6 +77,7 @@ function nextButtonClickHandler() {
   updateState();
   updateUI();
   updateCheckedAnswerStylesOnQuestionChange(answerInputElements);
+  manageTimersOnQuestionChange(timers[currentQuestionIndex - 1]);
 }
 
 function finishButtonClickHandler() {
@@ -76,6 +85,25 @@ function finishButtonClickHandler() {
   showQuizEndgameModal(quizScoreData);
 }
 
+// Timer
+function manageTimersOnQuestionChange(prevTimer: Timer) {
+  const currTimer = timers[currentQuestionIndex];
+  currTimer.start();
+  prevTimer.stop();
+}
+
+function initializeTimer() {
+  const currTimer = timers[currentQuestionIndex];
+  currTimer.start();
+  setInterval(
+    () =>
+      (questionTimeElement.innerHTML = `Time spent: ${timers[
+        currentQuestionIndex
+      ].totalTime.toString()}<span>s</span>`)
+  );
+}
+
+// Endgame
 function getQuizScoreData() {
   const questions = QUESTIONS;
   const quizScoreData = questions.map((question) => {
@@ -120,7 +148,7 @@ function updateUI() {
 }
 
 function updateCurrentQuestionAndAnswersText() {
-  questionParagraphElement.innerHTML = `Solve the equation: <span class="question__text__equation">${equation}</span>`;
+  questionTextElement.innerHTML = `Solve the equation: <span class="question__text__equation">${equation}</span>`;
   answerParagraphElements.forEach((x, index) => {
     x.textContent = answers[index];
   });
