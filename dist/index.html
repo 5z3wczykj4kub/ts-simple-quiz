@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="./main.js" defer></script>
-    <title>TS Algebra Quiz</title>
+    <title>TS Simple Quiz</title>
   </head>
   <body>
     <main>
@@ -86,6 +86,34 @@
               alt="finish line"
             />
           </button>
+        </div>
+      </div>
+      <!-- Endgame modal -->
+      <div class="endgame-modal endgame-modal--hidden">
+        <div class="endgame-modal__backdrop"></div>
+        <div class="endgame-modal__modal">
+          <h2 class="endgame-modal__modal__heading">Quiz result</h2>
+          <p class="endgame-modal__modal__paragraph">
+            Game over. All questions have been answered. Check your score below.
+          </p>
+          <div class="endgame-modal__modal__score">
+            <p class="endgame-modal__modal__score__text">Your score</p>
+            <p class="endgame-modal__modal__score__points">
+              <span class="endgame-modal__modal__score__points__scored">4</span>
+              /
+              <span class="endgame-modal__modal__score__points__total">5</span>
+            </p>
+          </div>
+          <div class="endgame-modal__modal__buttons">
+            <button class="endgame-modal__modal__buttons__button">
+              Play again
+              <img
+                class="endgame-modal__modal__buttons__button__image"
+                src="./assets/refresh.png"
+                alt="refresh"
+              />
+            </button>
+          </div>
         </div>
       </div>
     </main>

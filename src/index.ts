@@ -18,28 +18,41 @@ const answerInputElements = document.querySelectorAll(
 const [prevButtonElement, nextButtonElement, finishButtonElement] =
   document.querySelectorAll<HTMLButtonElement>('.navigation__buttons__button')!;
 
+const endgameModal = document.querySelector('.endgame-modal')!;
+const endgameModalButton = document.querySelector(
+  '.endgame-modal__modal__buttons__button'
+)!;
+const engameModalBackdrop = document.querySelector('.endgame-modal__backdrop')!;
+const scoredPointsElement = document.querySelector(
+  '.endgame-modal__modal__score__points__scored'
+)!;
+const totalPointsElement = document.querySelector(
+  '.endgame-modal__modal__score__points__total'
+)!;
+
 // Initial state
 let currentQuestionIndex = 0;
 let { equation, answers } = QUESTIONS[currentQuestionIndex];
-
 updateUI();
 
-answerInputElements.forEach((answerInputElement, _, answerInputElements) =>
-  answerInputElement.addEventListener('change', () => {
-    // Save checked answer
-    QUESTIONS[currentQuestionIndex].checkedAnswerIndex = (
-      answerInputElement.id.charCodeAt(0) - 97
-    ).toString();
-    displayFinishButton();
-    styleCheckedAnswerOnly(answerInputElements);
-  })
-);
+// App
+(function app() {
+  answerInputElements.forEach((answerInputElement, _, answerInputElements) =>
+    answerInputElement.addEventListener('change', () => {
+      saveCheckedAnswer(answerInputElement as HTMLInputElement);
+      displayFinishButton();
+      styleCheckedAnswerOnly(answerInputElements);
+    })
+  );
 
-// Buttons click listeners
-prevButtonElement.addEventListener('click', prevButtonClickHandler);
-nextButtonElement.addEventListener('click', nextButtonClickHandler);
+  prevButtonElement.addEventListener('click', prevButtonClickHandler);
+  nextButtonElement.addEventListener('click', nextButtonClickHandler);
+  finishButtonElement.addEventListener('click', finishButtonClickHandler);
+  endgameModalButton.addEventListener('click', () => location.reload());
+  engameModalBackdrop.addEventListener('click', () => location.reload());
+})();
 
-// Buttons click handlers
+// Navigation buttons click handlers
 function prevButtonClickHandler() {
   prevButtonGuard();
   currentQuestionIndex--;
@@ -56,6 +69,28 @@ function nextButtonClickHandler() {
   updateState();
   updateUI();
   updateCheckedAnswerStylesOnQuestionChange(answerInputElements);
+}
+
+function finishButtonClickHandler() {
+  const quizScoreData = getQuizScoreData();
+  showQuizEndgameModal(quizScoreData);
+}
+
+function getQuizScoreData() {
+  const questions = QUESTIONS;
+  const quizScoreData = questions.map((question) => {
+    const equationResult = eval(question.equation);
+    return +question.answers[+question.checkedAnswerIndex!] === equationResult;
+  });
+  return quizScoreData;
+}
+
+function showQuizEndgameModal(quizScoreData: boolean[]) {
+  endgameModal.classList.remove('endgame-modal--hidden');
+  scoredPointsElement.textContent = quizScoreData
+    .filter((x) => x)
+    .length.toString();
+  totalPointsElement.textContent = quizScoreData.length.toString();
 }
 
 // Button guards
@@ -85,7 +120,7 @@ function updateUI() {
 }
 
 function updateCurrentQuestionAndAnswersText() {
-  questionParagraphElement.textContent = `Solve the equation: ${equation}`;
+  questionParagraphElement.innerHTML = `Solve the equation: <span class="question__text__equation">${equation}</span>`;
   answerParagraphElements.forEach((x, index) => {
     x.textContent = answers[index];
   });
@@ -149,4 +184,10 @@ function displayFinishButton() {
 
 function areAllAnswersChecked() {
   return QUESTIONS.every((QUESTION) => !!QUESTION.checkedAnswerIndex);
+}
+
+function saveCheckedAnswer(answerInputElement: HTMLInputElement) {
+  QUESTIONS[currentQuestionIndex].checkedAnswerIndex = (
+    answerInputElement.id.charCodeAt(0) - 97
+  ).toString();
 }

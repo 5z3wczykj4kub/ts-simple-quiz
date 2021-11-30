@@ -8,6 +8,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -22,12 +23,14 @@ body {
 }
 
 main {
+  $fade-in-transition-time: 0.3s;
+
   @mixin max-width-center() {
     max-width: 40rem;
     margin: 0 auto;
   }
 
-  padding: 1rem;
+  padding: 2rem 1rem;
 
   // Questions
   .question {
@@ -39,15 +42,18 @@ main {
     }
 
     .question__text {
-      margin-top: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .question__text__equation {
+      font-weight: bold;
     }
   }
 
   // Answers
   .answer {
     @include max-width-center();
-    $fade-in-transition-time: 0.3s;
-    margin-top: 1rem;
+    margin-top: 1.25rem;
 
     .answers__answer {
       display: flex;
@@ -57,7 +63,6 @@ main {
       margin: 0.5rem 0;
       border: 1px solid $text-color;
       border-radius: 0.75rem;
-      background-color: $primary-muted-color;
       transition: color $fade-in-transition-time,
         border-color $fade-in-transition-time;
       cursor: pointer;
@@ -133,7 +138,7 @@ main {
         .navigation__buttons__button:last-of-type {
           @include shake-animation();
           display: flex;
-          background-color: $succes-color;
+          background-color: $primary-muted-color;
         }
       }
 
@@ -173,6 +178,121 @@ main {
 
         &.navigation__buttons__button__image--last {
           filter: invert(0);
+        }
+      }
+    }
+  }
+
+  // Endgame modal
+  .endgame-modal {
+    &.endgame-modal--hidden {
+      .endgame-modal__backdrop {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+
+      .endgame-modal__modal {
+        display: none;
+      }
+    }
+
+    .endgame-modal__backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba($color: #000000, $alpha: 0.5);
+      transition: opacity $fade-in-transition-time / 2;
+    }
+
+    .endgame-modal__modal {
+      @keyframes scale-animation {
+        0% {
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 20rem;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      background-color: $primary-muted-color;
+      transition: opacity $fade-in-transition-time;
+      animation: scale-animation 0.3s forwards;
+
+      .endgame-modal__modal__heading {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+      }
+
+      .endgame-modal__modal__paragraph {
+        text-align: center;
+        letter-spacing: 0.25px;
+      }
+
+      .endgame-modal__modal__score {
+        font-size: 1.1rem;
+        text-align: center;
+        margin-top: 1rem;
+
+        .endgame-modal__modal__score__text {
+          margin-bottom: 0.25rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-size: 0.9rem;
+          color: #aaa;
+        }
+
+        .endgame-modal__modal__score__points {
+          font-size: 1.1rem;
+          font-weight: bold;
+
+          .endgame-modal__modal__score__points__scored {
+            color: $secondary-color;
+          }
+        }
+      }
+
+      .endgame-modal__modal__buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+
+        .endgame-modal__modal__buttons__button {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.75rem;
+          font-size: 1rem;
+          outline: none;
+          border: none;
+          border-radius: 0.75rem;
+          background-color: $primary-color;
+          color: $text-color;
+          cursor: pointer;
+
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              filter: brightness(1.1);
+            }
+          }
+
+          .endgame-modal__modal__buttons__button__image {
+            filter: invert(100);
+            height: 1.1rem;
+          }
         }
       }
     }
