@@ -20,11 +20,14 @@ const answerInputElements = document.querySelectorAll(
 const [prevButtonElement, nextButtonElement, finishButtonElement] =
   document.querySelectorAll<HTMLButtonElement>('.navigation__buttons__button')!;
 
-const endgameModal = document.querySelector('.endgame-modal')!;
-const endgameModalButton = document.querySelector(
+const endgameModalElement = document.querySelector('.endgame-modal')!;
+const endgameModalInnerElement: HTMLDivElement = document.querySelector(
+  '.endgame-modal__modal'
+)!;
+const endgameModalButtonElement = document.querySelector(
   '.endgame-modal__modal__buttons__button'
 )!;
-const endgameModalBackdrop = document.querySelector(
+const endgameModalBackdropElement = document.querySelector(
   '.endgame-modal__backdrop'
 )!;
 const scoredPointsElement = document.querySelector(
@@ -32,6 +35,12 @@ const scoredPointsElement = document.querySelector(
 )!;
 const totalPointsElement = document.querySelector(
   '.endgame-modal__modal__score__points__total'
+)!;
+const detailsElement = document.querySelector(
+  '.endgame-modal__modal__details'
+)!;
+const detailsTogglerElement = document.querySelector(
+  '.endgame-modal__modal__details__toggler'
 )!;
 
 // Initial state
@@ -55,8 +64,13 @@ updateUI();
   prevButtonElement.addEventListener('click', prevButtonClickHandler);
   nextButtonElement.addEventListener('click', nextButtonClickHandler);
   finishButtonElement.addEventListener('click', finishButtonClickHandler);
-  endgameModalButton.addEventListener('click', () => location.reload());
-  endgameModalBackdrop.addEventListener('click', () => location.reload());
+  endgameModalButtonElement.addEventListener('click', () => location.reload());
+  endgameModalBackdropElement.addEventListener('click', () =>
+    location.reload()
+  );
+  detailsTogglerElement.addEventListener('click', detailsTogglerClickHandler, {
+    once: true,
+  });
 })();
 
 // Navigation buttons click handlers
@@ -114,11 +128,54 @@ function getQuizScoreData() {
 }
 
 function showQuizEndgameModal(quizScoreData: boolean[]) {
-  endgameModal.classList.remove('endgame-modal--hidden');
+  endgameModalElement.classList.remove('endgame-modal--hidden');
   scoredPointsElement.textContent = quizScoreData
     .filter((x) => x)
     .length.toString();
   totalPointsElement.textContent = quizScoreData.length.toString();
+}
+
+function detailsTogglerClickHandler() {
+  detailsElement.classList.remove('endgame-modal__modal__details--hidden');
+  detailsElement.classList.contains('endgame-modal__modal__details--hidden')
+    ? (endgameModalInnerElement.style.maxHeight = '16.5rem')
+    : (endgameModalInnerElement.style.maxHeight = '40rem');
+
+  let detailsListElement = detailsElement.lastElementChild!;
+  let detailsListItemElements: HTMLCollection = detailsListElement.children;
+
+  const detailsListItemsElementsGroup = (
+    questionNumber: number,
+    timeSpent: number,
+    points: boolean
+  ) =>
+    [questionNumber, timeSpent + 's', points ? '1' : '0'].reduce(
+      (prevVal, currVal) =>
+        prevVal +
+        `<li class="endgame-modal__modal__details__list__item">${currVal}</li>`,
+      ''
+    );
+
+  const quizScoreData = getQuizScoreData();
+
+  QUESTIONS.forEach((_, index) => {
+    detailsListElement.innerHTML += detailsListItemsElementsGroup(
+      index + 1,
+      timers[index].totalTime,
+      quizScoreData[index]
+    );
+  });
+
+  // Add animations for each list element
+  Array.from(detailsListItemElements).forEach(
+    (detailsListItemElement, index) => {
+      (
+        detailsListItemElement as HTMLLIElement
+      ).style.animation = `detail-list-item-fade-in ${
+        Math.floor(index / 3) * 500
+      }ms ${Math.floor(index / 3) * 500}ms forwards`;
+    }
+  );
 }
 
 // Button guards
