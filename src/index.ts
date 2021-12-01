@@ -97,6 +97,8 @@ function nextButtonClickHandler() {
 function finishButtonClickHandler() {
   const quizScoreData = getQuizScoreData();
   showQuizEndgameModal(quizScoreData);
+  stopAllTimers();
+  saveDataToLocalStorage();
 }
 
 // Timer
@@ -115,6 +117,10 @@ function initializeTimer() {
         currentQuestionIndex
       ].totalTime.toString()}<span>s</span>`)
   );
+}
+
+function stopAllTimers() {
+  timers.forEach((timer) => timer.stop());
 }
 
 // Endgame
@@ -149,12 +155,23 @@ function detailsTogglerClickHandler() {
     timeSpent: number,
     points: boolean
   ) =>
-    [questionNumber, timeSpent + 's', points ? '1' : '0'].reduce(
-      (prevVal, currVal) =>
-        prevVal +
-        `<li class="endgame-modal__modal__details__list__item">${currVal}</li>`,
-      ''
-    );
+    `
+      <li class="endgame-modal__modal__details__list__item ${
+        points
+          ? 'endgame-modal__modal__details__list__item--succes'
+          : 'endgame-modal__modal__details__list__item--danger'
+      }">${questionNumber}</li>
+      <li class="endgame-modal__modal__details__list__item ${
+        points
+          ? 'endgame-modal__modal__details__list__item--succes'
+          : 'endgame-modal__modal__details__list__item--danger'
+      }">${timeSpent}s</li>
+      <li class="endgame-modal__modal__details__list__item ${
+        points
+          ? 'endgame-modal__modal__details__list__item--succes'
+          : 'endgame-modal__modal__details__list__item--danger'
+      }">${points ? '1' : '0'}</li>
+    `;
 
   const quizScoreData = getQuizScoreData();
 
@@ -175,6 +192,18 @@ function detailsTogglerClickHandler() {
         Math.floor(index / 3) * 500
       }ms ${Math.floor(index / 3) * 500}ms forwards`;
     }
+  );
+}
+
+function saveDataToLocalStorage() {
+  localStorage.setItem(
+    'GAME_STATS',
+    JSON.stringify(
+      QUESTIONS.map((QUESTION, index) => ({
+        ...QUESTION,
+        timeSpent: `${timers[index].totalTime}s`,
+      }))
+    )
   );
 }
 

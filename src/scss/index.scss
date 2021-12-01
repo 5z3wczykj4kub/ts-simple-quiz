@@ -326,6 +326,14 @@ main {
 
           .endgame-modal__modal__details__list__item {
             opacity: 0;
+
+            &.endgame-modal__modal__details__list__item--succes {
+              color: $secondary-color;
+            }
+
+            &.endgame-modal__modal__details__list__item--danger {
+              color: $danger-color;
+            }
           }
 
           .endgame-modal__modal__details__list__item--heading {
